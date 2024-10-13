@@ -5,10 +5,10 @@ import torch.nn.functional as F
 from torch import nn
 from torchaudio.transforms import Resample
 
-from panns_modules.conv_block import ConvBlock, init_layer, init_bn
-from panns_modules.logmel import LogmelFilterBank
-from panns_modules.panns_input import PannsInput
-from panns_modules.spectrogram import Spectrogram
+from .conv_block import ConvBlock, init_layer, init_bn
+from .logmel import LogmelFilterBank
+from .panns_input import PannsInput
+from .spectrogram import Spectrogram
 
 
 class Cnn14_8k(nn.Module):
@@ -69,8 +69,13 @@ class Cnn14_8k(nn.Module):
         init_layer(self.fc_audioset)
 
     def forward(self, p_input: PannsInput):
-        resampler = Resample(p_input.sample_rate, self.sample_rate)
-        x = resampler.forward(p_input.audio)
+        resampled_audio = []
+
+        for audio, sample_rate in zip(p_input.audios, p_input.sample_rates):
+            resampler = Resample(sample_rate, self.sample_rate)
+            resampled_audio.append(resampler(audio))
+
+        x = torch.concat(resampled_audio, dim=0)
 
         x = self.spectrogram_extractor.forward(x)  # (batch_size, 1, time_steps, freq_bins)
         x = self.logmel_extractor.forward(x)  # (batch_size, 1, time_steps, mel_bins)
@@ -102,13 +107,15 @@ class Cnn14_8k(nn.Module):
         embedding = F.dropout(x, p=0.5, training=self.training)
         panns_output = torch.sigmoid(self.fc_audioset(x))
 
-        class_labels = {}
-        panns_values, label_indices = torch.sort(panns_output.squeeze(), descending=True)
-
-        for i in range(p_input.top_k):
-            label_index, panns_value = int(label_indices[i]), float(panns_values[i])
-            class_label = self.class_label_indices[int(label_index)]
-            class_labels[class_label] = float(panns_value)
+        class_labels = []
+        for i, top_k in enumerate(p_input.top_ks):
+            panns_values, label_indices = torch.sort(panns_output[i], descending=True)
+            class_labels_dict = {}
+            for i in range(top_k):
+                label_index, panns_value = int(label_indices[i]), float(panns_values[i])
+                class_label = self.class_label_indices[int(label_index)]
+                class_labels_dict[class_label] = float(panns_value)
+            class_labels.append(class_labels_dict)
 
         output_dict = {'panns_output': panns_output, 'embedding': embedding,
                        'class_labels': class_labels}

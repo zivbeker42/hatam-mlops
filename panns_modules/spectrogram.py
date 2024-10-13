@@ -1,7 +1,6 @@
-import numpy as np
 from torch import nn
 
-from stft import STFT
+from .stft import STFT
 
 
 class Spectrogram(nn.Module):
