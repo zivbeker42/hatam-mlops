@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from solved.cnn_helpers import ConvBlock, init_layer, init_bn
-from solved.logmel import LogmelFilterBank
-from solved.spectrogram import Spectrogram
+from solution.conv_block import ConvBlock, init_layer, init_bn
+from solution.logmel import LogmelFilterBank
+from solution.spectrogram import Spectrogram
 
 
 class Cnn14_8k(nn.Module):

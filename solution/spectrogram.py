@@ -1,6 +1,6 @@
 from torch import nn
 
-from solved.stft import STFT
+from solution.stft import STFT
 
 
 class Spectrogram(nn.Module):

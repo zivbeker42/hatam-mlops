@@ -5,8 +5,8 @@ import torch
 import torchaudio
 from torchaudio.transforms import Resample
 
-from solved.panns_input import PannsInput
-from solved.cnn_model import Cnn14_8k
+from solution.panns_input import PannsInput
+from solution.cnn_model import Cnn14_8k
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model_config = {
