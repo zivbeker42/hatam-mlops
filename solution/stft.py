@@ -98,6 +98,7 @@ class STFT(DFTBase):
         x = input[:, None, :]  # (batch_size, channels_num, data_length)
 
         if self.center:
+            # x = F.pad(x.float(), pad=(self.n_fft // 2, self.n_fft // 2), mode=self.pad_mode).half()
             x = F.pad(x, pad=(self.n_fft // 2, self.n_fft // 2), mode=self.pad_mode)
 
         real = self.conv_real(x)
