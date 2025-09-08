@@ -72,7 +72,7 @@ class Cnn14_8k(nn.Module):
         resampled_audio = []
 
         for audio, sample_rate in zip(p_input.audios, p_input.sample_rates):
-            resampler = Resample(sample_rate, self.sample_rate)
+            resampler = Resample(sample_rate, self.sample_rate).to("cuda")
             resampled_audio.append(resampler(audio))
 
         x = torch.concat(resampled_audio, dim=0)
