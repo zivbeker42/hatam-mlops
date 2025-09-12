@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace:cached
+    tty: true
+    stdin_open: true
+    # GPU access:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+    # or (older compose):  runtime: nvidia
+    # Useful ports (optional, if you want browser access):
+    ports:
+      - "8888:8888"   # Jupyter
+      - "6006:6006"   # TensorBoard
