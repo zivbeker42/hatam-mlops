@@ -1,24 +1,20 @@
-# Base image: CUDA 12.8, Python preinstalled, multi-arch (arm64 supported)
-FROM nvcr.io/nvidia/ai-workbench/python-cuda128:1.0.2
+# syntax=docker/dockerfile:1
 
-# Prevent interactive prompts
-ENV DEBIAN_FRONTEND=noninteractive \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONUNBUFFERED=1
+# CUDA-enabled PyTorch runtime (includes Python & torch)
+# FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+FROM ziv-training-image:1.0.0
 
-# Install pip and essential build tools (needed if torchaudio falls back to source)
+# Basics
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# System deps (audio + utils)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3-pip git build-essential sox libsox-dev ffmpeg cmake ninja-build 
-#     && rm -rf /var/lib/apt/lists/* \
-
-# Install Torch + Torchaudio for CUDA 12.8 (stable wheels)
-# TorchVision is optional; include if you need it.
-RUN pip install --index-url https://download.pytorch.org/whl/cu128 \
-      torch torchaudio
-      # torch==2.5.1 torchaudio==2.5.1 
-
-RUN pip install numpy
-
+    ffmpeg \
+    libsndfile1 \
+    git 
+#  && rm -rf /var/lib/apt/lists/*
 
 # Workdir maps to your git project when mounted
 WORKDIR /workspace

@@ -4,7 +4,7 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "features": {},
-  "remoteUser": "vscode",
+  "remoteUser": "root",
   "customizations": {
     "vscode": {
       "extensions": [
