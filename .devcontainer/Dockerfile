@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # CUDA-enabled PyTorch runtime (includes Python & torch)
-FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+# FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+FROM ziv-training-image:1.0.0
 
 # Basics
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -12,8 +13,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libsndfile1 \
-    git \
- && rm -rf /var/lib/apt/lists/*
+    git 
+#  && rm -rf /var/lib/apt/lists/*
 
 # Workdir maps to your git project when mounted
 WORKDIR /workspace
@@ -26,15 +27,15 @@ COPY . /workspace
 # - JupyterLab for notebooks
 # - torchaudio/librosa are common with audio ML
 # - If requirements.txt exists, install it (preferred)
-RUN pip install --upgrade pip && \
-    pip install jupyterlab ipykernel && \
-    if [ -f requirements.txt ]; then pip install -r requirements.txt; fi && \
+# RUN pip install --upgrade pip && \
+RUN pip install jupyterlab ipykernel && \
+    if [ -f requirements.txt ]; then pip install -r requirements.txt; fi 
     # Ensure CUDA-matched wheels for torchaudio; librosa for feature extraction
-    pip install --index-url https://download.pytorch.org/whl/cu121 torchaudio && \
-    pip install librosa
+    # pip install --index-url https://download.pytorch.org/whl/cu121 torchaudio && \
 
 # Expose Jupyter port
 EXPOSE 8888
 
 # Start JupyterLab (no token/password; bind on 0.0.0.0)
 CMD ["bash", "-lc", "jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*'"]
+
